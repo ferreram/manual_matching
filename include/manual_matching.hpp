@@ -46,7 +46,7 @@ public:
       {
         cv::circle(img2draw, m_vleft_kps[i], m_nkp_radius, m_vkps_color[i], -1);
         cv::circle(img2draw, m_vright_kps[i], m_nkp_radius, m_vkps_color[i], -1);
-        cv::line(img2draw, m_vleft_kps[i], m_vright_kps[i], m_vkps_color[i], m_nkp_radius / 3);
+        cv::line(img2draw, m_vleft_kps[i], m_vright_kps[i], m_vkps_color[i], std::max(m_nkp_radius / 3, 1));
       }
       if (m_vleft_kps.size() > m_vright_kps.size())
       {
