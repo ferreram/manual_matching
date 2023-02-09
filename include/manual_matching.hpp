@@ -30,12 +30,26 @@ public:
     m_nleft_img_cols = left_img.cols;
 
     m_nkp_radius = m_nleft_img_cols / 200;
+
+    if (m_matching_img.cols > 1920)
+    {
+      m_sx = 1920. / static_cast<double>(m_matching_img.cols);
+      m_sy = m_sx;
+    }
+
+    if (static_cast<double>(m_matching_img.rows) * m_sy > 1080.)
+    {
+      m_sy = 1080. / static_cast<double>(m_matching_img.rows);
+      m_sx = m_sy;
+    }
+
+    cv::resize(m_matching_img, m_matching_img, cv::Size(), m_sx, m_sy);
   }
 
   void manualMatching(std::vector<cv::Point2f> &_vpts_left, std::vector<cv::Point2f> &_vpts_right)
   {
     const std::string window_name = "Manual Matching";
-    cv::namedWindow(window_name, cv::WINDOW_FREERATIO);
+    cv::namedWindow(window_name, cv::WINDOW_KEEPRATIO);
 
     cv::setMouseCallback(window_name, onMouse, this);
 
@@ -54,6 +68,7 @@ public:
       }
 
       cv::imshow(window_name, img2draw);
+
       cv::waitKey(25);
     }
 
@@ -62,14 +77,17 @@ public:
     _vpts_left.reserve(m_vright_kps.size());
     _vpts_right.reserve(m_vright_kps.size());
 
+    const float inv_sx = 1.f / static_cast<float>(m_sx);
+    const float inv_sy = 1.f / static_cast<float>(m_sy);
+
     for (size_t i=0; i < m_vright_kps.size(); ++i)
     {
       const auto& lkp = m_vleft_kps[i];
       const auto& rkp = m_vright_kps[i];
-      _vpts_left.push_back(cv::Point2f(static_cast<float>(lkp.x),
-                                       static_cast<float>(lkp.y)));
-      _vpts_right.push_back(cv::Point2f(static_cast<float>(rkp.x - m_nleft_img_cols),
-                                       static_cast<float>(rkp.y)));
+      _vpts_left.push_back(cv::Point2f(static_cast<float>(lkp.x) * inv_sx,
+                                       static_cast<float>(lkp.y) * inv_sy));
+      _vpts_right.push_back(cv::Point2f(static_cast<float>(rkp.x - m_nleft_img_cols) * inv_sx,
+                                       static_cast<float>(rkp.y) * inv_sy));
     }
   } 
 
@@ -128,6 +146,8 @@ private:
 
   cv::Mat m_matching_img;
   int m_nleft_img_cols;
+  double m_sx = 1; 
+  double m_sy = 1;
   
   std::vector<cv::Point2i> m_vleft_kps, m_vright_kps;
   std::vector<cv::Scalar> m_vkps_color;
