@@ -27,10 +27,6 @@ public:
 
     cv::hconcat(left_img, right_img, m_matching_img);
 
-    m_nleft_img_cols = left_img.cols;
-
-    m_nkp_radius = m_nleft_img_cols / 200;
-
     if (m_matching_img.cols > 1920)
     {
       m_sx = 1920. / static_cast<double>(m_matching_img.cols);
@@ -44,17 +40,20 @@ public:
     }
 
     cv::resize(m_matching_img, m_matching_img, cv::Size(), m_sx, m_sy);
+
+    m_nleft_img_cols = m_matching_img.cols / 2;
+    m_nkp_radius = m_nleft_img_cols / 200;
   }
 
   void manualMatching(std::vector<cv::Point2f> &_vpts_left, std::vector<cv::Point2f> &_vpts_right)
   {
     const std::string window_name = "Manual Matching";
-    cv::namedWindow(window_name, cv::WINDOW_KEEPRATIO);
-
-    cv::setMouseCallback(window_name, onMouse, this);
+    cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
 
     while(!m_bmatching_done)
     {
+      cv::setMouseCallback(window_name, onMouse, this);
+
       cv::Mat img2draw = m_matching_img.clone();
       for (size_t i=0; i < m_vright_kps.size(); ++i)
       {
@@ -100,6 +99,7 @@ private:
     // Add new kp / match
     if (event == cv::EVENT_LBUTTONDOWN)
     {
+      std::cout << "\n Points clicked : " << cv::Point(x,y);
       // Click on right image
       if (x >= pthis->m_nleft_img_cols)
       {
@@ -146,8 +146,8 @@ private:
 
   cv::Mat m_matching_img;
   int m_nleft_img_cols;
-  double m_sx = 1; 
-  double m_sy = 1;
+  double m_sx = 1.; 
+  double m_sy = 1.;
   
   std::vector<cv::Point2i> m_vleft_kps, m_vright_kps;
   std::vector<cv::Scalar> m_vkps_color;
