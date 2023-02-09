@@ -130,7 +130,7 @@ private:
         pthis->m_vleft_kps.pop_back();
         pthis->m_vkps_color.pop_back();
       }
-      else
+      else if (!pthis->m_vright_kps.empty())
       {
         pthis->m_vright_kps.pop_back();
       }
