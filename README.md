@@ -8,3 +8,4 @@ Perform a manual matching between two images.
 4) Stop with a double right click
 
 * Middle click to cancel previous keypoint / match selection
+
